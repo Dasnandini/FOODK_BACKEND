@@ -1,0 +1,348 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String   @unique
+  password     String
+  phone        String?
+  address      String?
+  role         String
+  deviceToken  String?
+  loginTime    DateTime?
+  isLoggedOut  Boolean  @default(false)
+  status       Boolean  @default(true)
+  isDeleted    Boolean  @default(false)
+  otp          String?
+  otpTime      DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Banner {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  bannerType    String
+  categoryId    String?  @db.ObjectId
+  restaurantId  String?  @db.ObjectId
+  link          String?
+  image         String
+  imageType     String
+  status        Boolean  @default(true)
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Category {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  parentId    String?  @db.ObjectId
+  image       String?
+  slug        String   @unique
+  priority    Int      @default(0)
+  isHome      Boolean  @default(false)
+  isPopular   Boolean  @default(false)
+  status      Boolean  @default(true)
+  isDeleted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Vendor {
+  id                     String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  name                   String
+  vendorCode             String?  @unique
+
+  userName               String?
+  userEmail              String?  @unique
+  userPhone              String?
+
+  address                String?
+  googleAddress          String?
+  latitude               Float?
+  longitude              Float?
+  location               Json?
+  pincode                String?
+
+  accountName            String?
+  accountNo              String?
+  bankName               String?
+  bankCode               String?
+  panNo                  String?
+  taxName                String?
+  taxNumber              String?
+  gstCertificate         String?
+
+  canViewCustomerDetails Boolean @default(false)
+  canViewOrderOtp        Boolean @default(false)
+  canAssignDeliveryBoy   Boolean @default(false)
+  isProductApproval      Boolean @default(false)
+
+  commissionType         String? 
+  commissionValue        Float?
+  rainFee                Float?
+
+
+  avgRating              Float    @default(0)
+  totalRating            Int      @default(0)
+
+  openTime               DateTime?
+  closeTime              DateTime?
+  deliveryTime           String?
+
+  radius                 Float?
+  twoHrRadius            Float?
+  isRainMode             Boolean  @default(false)
+  deliveryOtp            String?
+
+
+  image                  String?
+  addressProof           String?
+  nicCard                String?
+
+  paymentMethod          String?
+
+  status                 Boolean  @default(true)
+  isDeleted              Boolean  @default(false)
+  isBlocked              Boolean  @default(false)
+
+  lastLoginAt            DateTime?
+  lastActiveAt           DateTime?
+
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+
+
+model DeliveryAgent {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  vendorId         String?  @db.ObjectId
+  cityId           Int
+
+  name             String
+  email            String?  @unique
+  phone            String
+  alternatePhone   String?
+  password         String?
+
+  image            String?
+  address          String?
+
+  latitude         Float?
+  longitude        Float?
+
+  dob              DateTime?
+
+  adharCard        String?
+  adharFront       String?
+  adharBack        String?
+  panNo            String?
+  passbook         String?
+
+  drivingLicence   String?
+  dlNo             String?
+
+  vehicleType      String?
+  vehicleName      String?
+  vehicleNo        String?
+  vehicleDocument  String?
+
+  accountNo        String?
+  bankName         String?
+  ifscCode         String?
+
+  deviceId         String?
+  deviceToken      String?
+
+  workStatus       Int      @default(0) 
+  availability     String?
+
+  wallet           Float   @default(0)
+  earningAmount    Float   @default(0)
+  collectionAmount Float   @default(0)
+
+
+
+  perOrderType     String?
+  perOrderValue    Float?
+
+  status           Boolean  @default(true)
+  isDeleted        Boolean  @default(false)
+
+  lastLoginAt      DateTime?
+  lastActiveAt     DateTime?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  transactions     DeliveryAgentTransaction[]
+}
+
+model DeliveryAgentTransaction {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  agentId       String   @db.ObjectId
+  agent         DeliveryAgent @relation(fields: [agentId], references: [id])
+
+  orderId       String?
+
+  availWallet   Float?
+  totalAmount   Float?
+  tax           Float?
+  netAmount     Float?
+
+
+  type          String? 
+  remarks       String?
+
+  status        Boolean  @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum AuthProvider {
+  PHONE
+  GOOGLE
+  APPLE
+  FACEBOOK
+}
+model AuthAccount {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId          String   @db.ObjectId
+  user            User     @relation(fields: [userId], references: [id])
+
+  provider        AuthProvider
+  providerUserId  String
+
+  email           String?
+  phone           String?
+  otp             String?
+  otpExpiresAt    DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([provider, providerUserId])
+}
+
+
+
+model User {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  name             String?
+  email            String?  @unique
+  phone            String?  @unique
+  image            String?
+
+  gender           String?
+  dob              DateTime?
+  anniversary      DateTime?
+
+  deviceId         String?
+  deviceToken      String?
+  deviceType       String?
+
+  walletBalance    Float  @default(0)
+ cashbackBalance   Float  @default(0)
+
+  rewardPoints      Int      @default(0)
+
+  subscriptionId    String?
+  subscriptionStart DateTime?
+  subscriptionEnd   DateTime?
+
+
+  cityId           String?
+  stateId          String?
+  pincode          String?
+  latitude         Float?
+  longitude        Float?
+  location         Json?
+
+  activityLevel    String?
+  foodChoice       String?
+
+  
+  status         Boolean  @default(true)
+  isDeleted        Boolean  @default(false)
+  isBanned         Boolean  @default(false)
+  blockedReason    String?
+
+  popupSignup      Boolean  @default(false)
+  leadStatus       String?
+  loyaltyTier      String?
+
+  lastLoginAt      DateTime?
+  lastActiveAt     DateTime?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  authAccounts     AuthAccount[]
+  addresses        UserAddress[]
+
+}
+
+model UserAddress {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId           String   @db.ObjectId
+  user             User     @relation(fields: [userId], references: [id])
+
+  label            String?  
+  addressType      String?
+
+  flatNo            String?
+  buildingName     String?
+  landmark          String?
+  area              String?
+
+  country           String?
+  state             String?
+  pincode           String?
+
+  latitude          Float?
+  longitude         Float?
+  geoLocation       Json?
+
+  contactName       String?
+  contactPhone      String?
+
+  note              String?
+  deliveryInstructions String?
+
+  isDefault         Boolean  @default(false)
+  isActive          Boolean  @default(true)
+  isDeleted         Boolean  @default(false)
+
+  priority          Int      @default(0)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+}
+
+
+
+
+
+
