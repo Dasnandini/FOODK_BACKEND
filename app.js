@@ -43,7 +43,7 @@ app.use(
   })
 );
 
-const allowedOrigins = ["http://localhost:5173",];
+const allowedOrigins = ["http://localhost:5173", "https://foodk.vercel.app"];
 
 app.use(
   cors({

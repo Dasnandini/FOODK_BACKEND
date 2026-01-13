@@ -10,9 +10,7 @@ import {
   clearJwtCookie,
 } from '../utils/jwt.js';
 
-/**
- * LOGIN
- */
+
 export const login = async (req, res) => {
   const result = await loginAdmin(req.body);
 
@@ -20,7 +18,7 @@ export const login = async (req, res) => {
     return res.status(401).json(result);
   }
 
-  // ✅ Set JWT cookie
+  
   setJwtCookie(res, result.token);
 
   return res.status(200).json({
@@ -29,9 +27,7 @@ export const login = async (req, res) => {
   });
 };
 
-/**
- * CHECK AUTH STATUS
- */
+
 export const authStatus = async (req, res) => {
   const token = req.cookies[process.env.COOKIE_NAME || 'jwt'];
 
@@ -48,9 +44,7 @@ export const authStatus = async (req, res) => {
   return res.status(200).json(result);
 };
 
-/**
- * LOGOUT
- */
+
 export const logout = async (req, res) => {
  
   const token = req.cookies[process.env.COOKIE_NAME || 'jwt'];
