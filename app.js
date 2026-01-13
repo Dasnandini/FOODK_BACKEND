@@ -12,7 +12,25 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        defaultSrc: ["'self'"],
+
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"]
+      }
+      },
+      crossOriginOpenerPolicy: { policy: "same-origin" },
+      crossOriginResourcePolicy: { policy: "same-origin" },
+      referrerPolicy: { policy: "no-referrer" },
+      hsts: { maxAge: 31536000, includeSubDomains: true, preload: true }
+
+   
+  })
+);
 
 app.use(
   rateLimit({

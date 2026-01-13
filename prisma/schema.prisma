@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -14,7 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Admin {
+model admin {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   email        String   @unique
@@ -33,7 +32,7 @@ model Admin {
   updatedAt    DateTime @updatedAt
 }
 
-model Banner {
+model banner {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   bannerType    String
   categoryId    String?  @db.ObjectId
@@ -47,7 +46,7 @@ model Banner {
   updatedAt     DateTime @updatedAt
 }
 
-model Category {
+model category {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   parentId    String?  @db.ObjectId
@@ -62,7 +61,7 @@ model Category {
   updatedAt   DateTime @updatedAt
 }
 
-model Vendor {
+model vendor {
   id                     String   @id @default(auto()) @map("_id") @db.ObjectId
 
   name                   String
@@ -130,7 +129,7 @@ model Vendor {
 
 
 
-model DeliveryAgent {
+model deliveryagent {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
 
   vendorId         String?  @db.ObjectId
@@ -192,14 +191,14 @@ model DeliveryAgent {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  transactions     DeliveryAgentTransaction[]
+  transactions     deliveryagenttransaction[]
 }
 
-model DeliveryAgentTransaction {
+model deliveryagenttransaction {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
 
   agentId       String   @db.ObjectId
-  agent         DeliveryAgent @relation(fields: [agentId], references: [id])
+  agent         deliveryagent @relation(fields: [agentId], references: [id])
 
   orderId       String?
 
@@ -218,19 +217,19 @@ model DeliveryAgentTransaction {
   updatedAt     DateTime @updatedAt
 }
 
-enum AuthProvider {
+enum authprovider {
   PHONE
   GOOGLE
   APPLE
   FACEBOOK
 }
-model AuthAccount {
+model authaccount {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
 
   userId          String   @db.ObjectId
-  user            User     @relation(fields: [userId], references: [id])
+  user            user     @relation(fields: [userId], references: [id])
 
-  provider        AuthProvider
+  provider        authprovider
   providerUserId  String
 
   email           String?
@@ -246,7 +245,7 @@ model AuthAccount {
 
 
 
-model User {
+model user {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
 
   name             String?
@@ -297,16 +296,16 @@ model User {
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  authAccounts     AuthAccount[]
-  addresses        UserAddress[]
+  authaccounts     authaccount[]
+  addresses        useraddress[]
 
 }
 
-model UserAddress {
+model useraddress {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
 
   userId           String   @db.ObjectId
-  user             User     @relation(fields: [userId], references: [id])
+  user             user     @relation(fields: [userId], references: [id])
 
   label            String?  
   addressType      String?

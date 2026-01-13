@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 export const createSuperAdmin = async (data) => {
   try {
     const existing = await prisma.admin.findFirst({
-      where: { role: 'SUPER_ADMIN' },
+      where: { role: 'SUPER_ADMIN', isDeleted: false },
     });
 
     if (existing) {
@@ -21,7 +21,8 @@ export const createSuperAdmin = async (data) => {
         email: data.email.toLowerCase(),
         password: await hashPassword(data.password),
         role: 'SUPER_ADMIN',
-        isVerified: true,
+        status: true,
+        isLoggedOut: false,
       },
     });
 
@@ -40,9 +41,11 @@ export const createSuperAdmin = async (data) => {
 };
 
 
-export const createAdmin = async (data, createdBy) => {
+
+export const createAdmin = async (data) => {
   try {
     const email = data.email.toLowerCase();
+
     const existingAdmin = await prisma.admin.findUnique({
       where: { email },
     });
@@ -60,7 +63,8 @@ export const createAdmin = async (data, createdBy) => {
         email,
         password: await hashPassword(data.password),
         role: 'ADMIN',
-        createdBy,
+        status: true,
+        isLoggedOut: false,
       },
     });
 
@@ -68,7 +72,6 @@ export const createAdmin = async (data, createdBy) => {
       status: 'SUCCESS',
       message: 'Admin created successfully',
     };
-
   } catch (err) {
     console.error(err);
     return {
@@ -77,6 +80,7 @@ export const createAdmin = async (data, createdBy) => {
     };
   }
 };
+
 
 
 // export const getAllAdmins = async () => {

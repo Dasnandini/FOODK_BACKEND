@@ -1,5 +1,5 @@
 import express from 'express';
-import { login } from '../controllers/login.controller.js';
+import { getMyProfile, login } from '../controllers/login.controller.js';
 import { onboardSuperAdmin, createAdminUser,} from '../controllers/register.controller.js';
 import { logout, authStatus } from '../controllers/login.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
@@ -16,7 +16,8 @@ router.post(
   authorize('SUPER_ADMIN'),
   createAdminUser
 );
-router.post('/logout', authenticate, logout);
+router.post('/logout', logout);
 router.get('/status', authenticate, authStatus);
+router.get('/me', getMyProfile);
 
 export default router;
