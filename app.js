@@ -6,12 +6,14 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import authRoutes from './src/routes/auth.routes.js';
+import path from 'path';
+import { fileURLToPath } from "url";
 
 dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 5000;
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -72,7 +74,10 @@ app.get('/health', (req, res) => {
 
 app.use('/api/foodk', authRoutes);
 
-
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+app.use(express.static(path.join(__dirname, "public")));
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
