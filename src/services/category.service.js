@@ -18,9 +18,9 @@ export const createCategoryService = async (req) => {
     }
 
     let imageUrl = null;
-    if (req.file) {
-      imageUrl = `${req.protocol}://${req.get("host")}/uploads/categories/${req.file.filename}`;
-    }
+    // if (req.file) {
+    //   imageUrl = `${req.protocol}://${req.get("host")}/uploads/categories/${req.file.filename}`;
+    // }
 
     const category = await prisma.category.create({
       data: {

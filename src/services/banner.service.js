@@ -15,7 +15,7 @@ export const createBannerService = async (req) => {
     if (!req.body.bannerType) {
       return response.fail("Banner type is required");
     }
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/banners/${req.file.filename}`;
+    const imageUrl = null;
     const bannerData = {
       bannerType: req.body.bannerType,
       categoryId: req.body.categoryId || null,

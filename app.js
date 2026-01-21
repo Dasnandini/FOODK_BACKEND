@@ -43,7 +43,7 @@ app.use(
   })
 );
 
-const allowedOrigins = ["http://localhost:5173", "https://foodk.vercel.app"];
+const allowedOrigins = ["http://localhost:5173", "https://foodk.vercel.app", "https://foodk-backend.vercel.app"];
 
 app.use(
   cors({
@@ -66,7 +66,6 @@ app.use(express.json({ limit: '10kb' }));
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
-app.use("/uploads", express.static("uploads"));
 
 
 app.get('/health', (req, res) => {
