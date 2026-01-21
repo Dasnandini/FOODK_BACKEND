@@ -3,13 +3,15 @@ const prisma = new PrismaClient();
 import { comparePassword } from '../utils/password.js';
 import { generateToken, verifyToken } from '../utils/jwt.js';
 
+import ServiceResponse from '../utils/ServiceResponse.js';
+
+
 export const loginAdmin = async ({ email, password }) => {
+  const response = new ServiceResponse();
+
   try {
     if (!email || !password) {
-      return {
-        status: 'FAIL',
-        message: 'Email and password are required',
-      };
+      return response.fail('Email and password are required');
     }
 
     const admin = await prisma.admin.findFirst({
@@ -21,18 +23,12 @@ export const loginAdmin = async ({ email, password }) => {
     });
 
     if (!admin) {
-      return {
-        status: 'FAIL',
-        message: 'Invalid credentials',
-      };
+      return response.fail('Invalid credentials');
     }
 
     const isValid = await comparePassword(password, admin.password);
     if (!isValid) {
-      return {
-        status: 'FAIL',
-        message: 'Invalid credentials',
-      };
+      return response.fail('Invalid credentials');
     }
 
     await prisma.admin.update({
@@ -45,41 +41,31 @@ export const loginAdmin = async ({ email, password }) => {
 
     const token = generateToken({
       id: admin.id,
-      role: admin.role, // 👈 IMPORTANT
+      role: admin.role,
     });
 
-    return {
-      status: 'SUCCESS',
-      message: 'Login successful',
+    return response.success({
       token,
-      role: admin.role, // frontend decides UI
-    };
+      role: admin.role,
+      message: 'Login successful',
+    });
+
   } catch (err) {
     console.error(err);
-    return {
-      status: 'FAIL',
-      message: 'Login failed',
-    };
+    return response.fail('Login failed');
   }
 };
 
 
 
-export const checkAuthStatus = async (token) => {
+
+export const checkAuthStatus = async (adminId) => {
+  const response = new ServiceResponse();
+
   try {
-    if (!token) {
-      return {
-        status: 'FAIL',
-        message: 'Not authenticated',
-        clearCookie: true,
-      };
-    }
-
-    const decoded = verifyToken(token);
-
     const admin = await prisma.admin.findFirst({
       where: {
-        id: decoded.id,
+        id: adminId,
         isDeleted: false,
         status: true,
         isLoggedOut: false,
@@ -91,29 +77,27 @@ export const checkAuthStatus = async (token) => {
     });
 
     if (!admin) {
-      return {
-        status: 'FAIL',
-        message: 'Session expired',
-        clearCookie: true,
-      };
+      return response.fail('Session expired or logged out');
     }
 
-    return {
-      status: 'SUCCESS',
-      message: 'Authenticated',
+    return response.success({
+      tokenValid: true,
       role: admin.role,
-    };
-  } catch {
-    return {
-      status: 'FAIL',
-      message: 'Invalid or expired token',
-      clearCookie: true,
-    };
+      message: 'Token is valid',
+    });
+
+  } catch (err) {
+    console.error(err);
+    return response.fail('Authentication check failed');
   }
 };
 
 
+
+
 export const logoutAdmin = async (adminId) => {
+  const response = new ServiceResponse();
+
   try {
     await prisma.admin.update({
       where: { id: adminId },
@@ -122,71 +106,17 @@ export const logoutAdmin = async (adminId) => {
       },
     });
 
-    return {
-      status: 'SUCCESS',
-      message: 'Logout successful',
-    };
+    return response.success('Logout successful');
+
   } catch (err) {
     console.error(err);
-    return {
-      status: 'FAIL',
-      message: 'Logout failed',
-    };
+    return response.fail('Logout failed');
   }
 };
 
 
 
-export const getAdminProfile = async (token) => {
-  try {
-    if (!token) {
-      return {
-        status: 'FAIL',
-        message: 'Not authenticated',
-      };
-    }
 
-    const decoded = verifyToken(token);
 
-    const admin = await prisma.admin.findFirst({
-      where: {
-        id: decoded.id,
-        isDeleted: false,
-        status: true,
-        isLoggedOut: false,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        address: true,
-        role: true,
-        loginTime: true,
-        deviceToken: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
 
-    if (!admin) {
-      return {
-        status: 'FAIL',
-        message: 'Admin not found or session expired',
-      };
-    }
-
-    return {
-      status: 'SUCCESS',
-      message: 'Profile fetched successfully',
-      data: admin,
-    };
-  } catch (err) {
-    console.error(err);
-    return {
-      status: 'FAIL',
-      message: 'Invalid or expired token',
-    };
-  }
-};
 

@@ -1,117 +1,81 @@
-import { hashPassword } from '../utils/password.js';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
+import { hashPassword } from "../utils/password.js";
+import ServiceResponse from "../utils/ServiceResponse.js";
 
 const prisma = new PrismaClient();
-export const createSuperAdmin = async (data) => {
+
+
+export const createSuperAdminService = async (req) => {
+  const response = new ServiceResponse();
+
   try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return response.fail("Name, email, and password are required");
+    }
+
     const existing = await prisma.admin.findFirst({
-      where: { role: 'SUPER_ADMIN', isDeleted: false },
+      where: { role: "SUPER_ADMIN", isDeleted: false }
     });
 
     if (existing) {
-      return {
-        status: 'FAIL',
-        message: 'Super Admin already exists',
-      };
+      return response.fail("Super Admin already exists");
     }
 
     await prisma.admin.create({
       data: {
-        name: data.name,
-        email: data.email.toLowerCase(),
-        password: await hashPassword(data.password),
-        role: 'SUPER_ADMIN',
+        name,
+        email: email.toLowerCase(),
+        password: await hashPassword(password),
+        role: "SUPER_ADMIN",
         status: true,
-        isLoggedOut: false,
-      },
+        isLoggedOut: false
+      }
     });
 
-    return {
-      status: 'SUCCESS',
-      message: 'Super Admin created successfully',
-      data: null,
-    };
+    return response.success("Super Admin created successfully");
   } catch (err) {
     console.error(err);
-    return {
-      status: 'FAIL',
-      message: 'Something went wrong, please try again',
-    };
+    return response.fail("Something went wrong, please try again");
   }
 };
 
 
+export const createAdminService = async (req) => {
+  const response = new ServiceResponse();
 
-export const createAdmin = async (data) => {
   try {
-    const email = data.email.toLowerCase();
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return response.fail("Name, email, and password are required");
+    }
+
+    const normalizedEmail = email.toLowerCase();
 
     const existingAdmin = await prisma.admin.findUnique({
-      where: { email },
+      where: { email: normalizedEmail }
     });
 
     if (existingAdmin) {
-      return {
-        status: 'FAIL',
-        message: 'Email already exists',
-      };
+      return response.fail("Email already exists");
     }
 
     await prisma.admin.create({
       data: {
-        name: data.name,
-        email,
-        password: await hashPassword(data.password),
-        role: 'ADMIN',
+        name,
+        email: normalizedEmail,
+        password: await hashPassword(password),
+        role: "ADMIN",
         status: true,
         isLoggedOut: false,
-      },
+      }
     });
 
-    return {
-      status: 'SUCCESS',
-      message: 'Admin created successfully',
-    };
+    return response.success("Admin created successfully");
   } catch (err) {
     console.error(err);
-    return {
-      status: 'FAIL',
-      message: 'Unable to create admin',
-    };
+    return response.fail("Unable to create admin");
   }
 };
-
-
-
-// export const getAllAdmins = async () => {
-//   try {
-//     const admins = await prisma.admin.findMany({
-//       where: { role: 'SUPER_ADMIN' },
-//       select: {
-//         id: true,
-//         name: true,
-//         email: true,
-//         role: true,
-//         isVerified: true,
-//         createdAt: true,
-//         createdBy: true,
-//       },
-//       orderBy: {
-//         createdAt: 'desc',
-//       },
-//     });
-
-//     return {
-//       status: 'SUCCESS',
-//       message: 'Admins list fetched successfully',
-//       data: admins,
-//     };
-
-//   } catch (err) {
-//     console.error(err);
-//     return {
-//       status: 'FAIL',
-//       message: 'Unable to fetch admins',
-//     };
-//   }
-// };

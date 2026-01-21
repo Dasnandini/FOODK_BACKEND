@@ -2,12 +2,26 @@ import jwt from 'jsonwebtoken';
 
 export const authenticate = (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) throw new Error();
+    const token =
+      req.cookies[process.env.COOKIE_NAME || 'jwt'] ||
+      req.headers.authorization?.split(' ')[1];
 
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    if (!token) {
+      return res.status(401).json({
+        status: 'FAIL',
+        message: 'Not authenticated',
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    req.user = decoded;
+
     next();
-  } catch {
-    res.status(401).json({ error: 'Unauthorized' });
+  } catch (err) {
+    return res.status(401).json({
+      status: 'FAIL',
+      message: 'Invalid or expired token',
+    });
   }
 };

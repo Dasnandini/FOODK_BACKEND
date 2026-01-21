@@ -108,6 +108,9 @@ model vendor {
   twoHrRadius            Float?
   isRainMode             Boolean  @default(false)
   deliveryOtp            String?
+  isVerified             Boolean  @default(false)
+  verificationStatus     String? @default("PENDING")
+  verifiedAt             DateTime?
 
 
   image                  String?
@@ -176,6 +179,9 @@ model deliveryagent {
   wallet           Float   @default(0)
   earningAmount    Float   @default(0)
   collectionAmount Float   @default(0)
+  isVerified             Boolean  @default(false)
+  verificationStatus     String? @default("PENDING")
+  verifiedAt             DateTime?
 
 
 

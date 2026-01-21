@@ -2,7 +2,7 @@ import {
   loginAdmin,
   checkAuthStatus,
   logoutAdmin,
-  getAdminProfile,
+
 } from '../services/login.service.js';
 
 import {
@@ -12,71 +12,42 @@ import {
 
 
 export const login = async (req, res) => {
-  const result = await loginAdmin(req.body);
+  const response = await loginAdmin(req.body);
 
-  if (result.status === 'FAIL') {
-    return res.status(401).json(result);
+  if (response.serviceStatus === "Fail") {
+    return res.status(401).json(response);
   }
 
-  
-  setJwtCookie(res, result.token);
+  setJwtCookie(res, response.serviceResponse.token);
 
-  return res.status(200).json({
-    status: 'SUCCESS',
-    message: result.message,
-  });
+  return res.status(200).json(response);
 };
+
 
 
 export const authStatus = async (req, res) => {
-  const token = req.cookies[process.env.COOKIE_NAME || 'jwt'];
+  const response = await checkAuthStatus(req.user.id);
 
-  const result = await checkAuthStatus(token);
-
-  if (result.clearCookie) {
-    clearJwtCookie(res);
-  }
-
-  if (result.status === 'FAIL') {
-    return res.status(401).json(result);
-  }
-
-  return res.status(200).json(result);
+  return res
+    .status(response.serviceStatus === "Success" ? 200 : 401)
+    .json(response);
 };
+
+
+
 
 
 export const logout = async (req, res) => {
- 
-  const token = req.cookies[process.env.COOKIE_NAME || 'jwt'];
-
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      await logoutAdmin(decoded.id);
-    } catch (err) {
-      console.error('Logout token error:', err.message);
-    }
-  }
+  const response = await logoutAdmin(req.user.id);
 
   clearJwtCookie(res);
 
-  return res.status(200).json({
-    status: 'SUCCESS',
-    message: 'Logout successful',
-  });
+  return res
+    .status(response.serviceStatus === "Success" ? 200 : 401)
+    .json(response);
 };
 
 
-export const getMyProfile = async (req, res) => {
 
 
-  const token = req.cookies[process.env.COOKIE_NAME || 'auth_token'];
 
-  const result = await getAdminProfile(token);
-
-  if (result.status === 'FAIL') {
-    return res.status(401).json(result);
-  }
-
-  return res.status(200).json(result);
-};
