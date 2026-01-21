@@ -17,20 +17,26 @@ export const createCategoryService = async (req) => {
       return response.fail("Category slug is required");
     }
 
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = `${req.protocol}://${req.get("host")}/uploads/categories/${req.file.filename}`;
+    }
+
     const category = await prisma.category.create({
       data: {
         name,
         slug,
         parentId: req.body.parentId || null,
-        image: req.body.image || null,
-        priority: req.body.priority || 0,
-        isHome: req.body.isHome || false,
-        isPopular: req.body.isPopular || false,
+        image: imageUrl,
+        priority: req.body.priority ? Number(req.body.priority) : 0,
+        isHome: req.body.isHome === "true" || req.body.isHome === true,
+        isPopular: req.body.isPopular === "true" || req.body.isPopular === true,
         status: req.body.status ?? true
       }
     });
 
     return response.success(category);
+
   } catch (err) {
     console.error(err);
     return response.fail("Something went wrong, please try again");

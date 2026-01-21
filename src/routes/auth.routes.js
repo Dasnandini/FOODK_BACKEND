@@ -9,7 +9,7 @@ import { createCategory, getCategories, getCategoryById, updateCategory,deleteCa
 import { createBanner, deleteBanner, getBannerById, getBanners, updateBanner, } from '../controllers/banner.controller.js';
 import { getDeliveryAgentById, getDeliveryAgents, verifyDeliveryAgent } from '../controllers/deliveryAgent.controller.js';
 import { getVendorById, getVendors, verifyVendor } from '../controllers/vendor.controller.js';
-import { uploadBannerImage } from '../middlewares/upload.middleware.js';
+import { createUploader } from '../middlewares/upload.middleware.js';
 
 const router = express.Router();
 
@@ -23,13 +23,13 @@ router.post('/logout',authenticate, logout);
 router.get('/status', authenticate, authStatus);
 router.get('/me',authenticate, getMyProfile);
 
-router.post("/addCategory", createCategory);
+router.post("/addCategory",createUploader("categories", "image"), createCategory);
 router.get("/getCategory", getCategories);
 router.get("/getCategorybyid", getCategoryById);
 router.put("/updateCategorybyid", updateCategory);
 router.delete("/deleteCategoryid", deleteCategory);
 
-router.post("/addBanner",uploadBannerImage, createBanner);
+router.post("/addBanner",createUploader("banners", "image"), createBanner);
 router.get("/getBanner", getBanners);
 router.get("/getBannerbyid", getBannerById);
 router.put("/updateBannerbyid", updateBanner);
