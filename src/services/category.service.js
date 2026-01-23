@@ -86,12 +86,48 @@ export const getCategoryByIdService = async (id) => {
 };
 
 
-export const updateCategoryService = async (id, data) => {
+export const updateCategoryService = async (id, req) => {
   const response = new ServiceResponse();
 
   try {
     if (!id) {
       return response.fail("Category ID is required");
+    }
+
+    const body = req.body || {};
+    const data = {};
+
+    if (body.slug !== undefined) {
+      data.slug = body.slug;
+    }
+
+    if (body.priority !== undefined) {
+      data.priority = Number(body.priority);
+    }
+
+    if (body.isHome !== undefined) {
+      data.isHome = body.isHome === "true" || body.isHome === true;
+    }
+
+    if (body.isPopular !== undefined) {
+      data.isPopular = body.isPopular === "true" || body.isPopular === true;
+    }
+
+    if (body.status !== undefined) {
+      data.status = body.status;
+    }
+
+    // 🔥 FIXED parentId logic
+    if (Object.prototype.hasOwnProperty.call(body, "parentId")) {
+      if (body.parentId === "") {
+        data.parentId = null;
+      } else {
+        data.parentId = body.parentId;
+      }
+    }
+
+    if (req.file) {
+      data.image = null; // or actual image url
     }
 
     const category = await prisma.category.update({
@@ -100,10 +136,16 @@ export const updateCategoryService = async (id, data) => {
     });
 
     return response.success(category);
+
   } catch (err) {
+    console.error(err);
     return response.fail("Failed to update category");
   }
 };
+
+
+
+
 
 export const deleteCategoryService = async (id) => {
   const response = new ServiceResponse();

@@ -2,7 +2,6 @@ import {
   createBannerService,
   getBannersService,
   getBannerByIdService,
-  updateBannerService,
   deleteBannerService
 } from "../services/banner.service.js";
 
@@ -21,10 +20,7 @@ export const getBannerById = async (req, res) => {
   res.json(response);
 };
 
-export const updateBanner = async (req, res) => {
-  const response = await updateBannerService(req.query.id, req.body);
-  res.json(response);
-};
+
 
 export const deleteBanner = async (req, res) => {
   const response = await deleteBannerService(req.query.id);

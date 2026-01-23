@@ -76,24 +76,7 @@ export const getBannerByIdService = async (id) => {
 };
 
 
-export const updateBannerService = async (id, data) => {
-  const response = new ServiceResponse();
 
-  try {
-    if (!id) {
-      return response.fail("Banner ID is required");
-    }
-
-    const banner = await prisma.banner.update({
-      where: { id },
-      data
-    });
-
-    return response.success(banner);
-  } catch (err) {
-    return response.fail("Failed to update banner");
-  }
-};
 
 
 export const deleteBannerService = async (id) => {

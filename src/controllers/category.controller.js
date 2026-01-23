@@ -22,9 +22,11 @@ export const getCategoryById = async (req, res) => {
 };
 
 export const updateCategory = async (req, res) => {
-  const response = await updateCategoryService(req.query.id, req.body);
+  const response = await updateCategoryService(req.query.id, req);
   res.json(response);
 };
+
+
 
 export const deleteCategory = async (req, res) => {
   const response = await deleteCategoryService(req.query.id);
